@@ -22,6 +22,41 @@ From planar geological maps toward open, reproducible **3D geological models** (
 
 ---
 
+## How Codex & GPT-5.6 were used (AI-assisted development)
+
+This project was built with **AI pair programming**. We used **OpenAI Codex** and **GPT-5.6** as coding / research copilots throughout the pipeline (with a human always reviewing geology logic and running experiments). Highlights:
+
+### 1. Architecture & research synthesis
+- Distilled literature (map digitization, DIGMAPPER-style modular flows, map2loop data contracts, interactive boundary extraction) into a **dual-path design**:
+  - Path A: raster map → structured CSV (extraction prototype)
+  - Path B: CSV → **GemPy** 3D model (modeling backend first)
+- Codex/GPT-5.6 helped turn “color clustering alone is brittle” into a concrete plan: synthetic constraints first, then harder map extraction later.
+
+### 2. Implementation (agentic coding)
+- **Codex-style agent workflows** for multi-file edits: synthetic data generator, GemPy runner, Gradio apps, docs, and repo hygiene.
+- **GPT-5.6** for:
+  - Designing fold / fault / topography math and GemPy `ImporterHelper` / `map_stack_to_surfaces` / `set_is_fault` wiring
+  - Debugging dependency & API issues (GemPy 2026, PyVista `export_html`, trame)
+  - Producing bilingual docs, Project Story, and submission media (gallery 3:2 frames, demo slideshow video script)
+- Human role: domain decisions (stratigraphic order, fault throw, evaluation criteria), running scripts, and verifying interactive `model_3d.html`.
+
+### 3. What AI did *not* replace
+- Geological validity checks and competition honesty (synthetic demo ≠ real map-derived model)
+- Choosing open stack: **GemPy + PyVista + OpenCV + Gradio** (no commercial modeler required)
+
+### 4. Reproducible AI-era artifacts in-repo
+| Artifact | Role |
+|----------|------|
+| `AGENTS.md` | Project context file so coding agents stay aligned |
+| `scripts/01_make_synthetic_data.py` | AI-assisted synthetic folds + fault |
+| `scripts/02_gempy_model.py` | AI-assisted GemPy + interactive HTML export |
+| `docs/Project_Story.md` | Narrative for judges |
+| `data/output/synthetic/model_3d.html` | Judge-facing interactive 3D result |
+
+> **For judges:** clone the repo, run the Quick start below (~few minutes on CPU). No cloud credentials required.
+
+---
+
 ## Quick start: fold + fault + topography (modeling)
 
 ```bash
