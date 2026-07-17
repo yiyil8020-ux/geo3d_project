@@ -1,18 +1,26 @@
 # macOS
 .DS_Store
+**/.DS_Store
 __pycache__/
 *.pyc
 *.pyo
 .venv/
+.venv-gempy/
 venv/
 *.egg-info/
 dist/
 .ipynb_checkpoints/
 
-# IDE
+# IDE / agent tooling (local)
 .vscode/
 .idea/
+.agents/
+.claude/
 
-# Data outputs (keep source data if small)
+# Data / model caches
 data/*.gempy
 data/*.h5
+**/*.npy
+
+# Keep synthetic CSV + demo figures; ignore other heavy dumps if added later
+scripts/geomap_demo/others/
