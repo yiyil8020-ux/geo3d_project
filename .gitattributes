@@ -1,0 +1,6 @@
+# Treat exported HTML 3D models and generated data outputs as generated/vendored
+# so GitHub Linguist correctly reports Python as the primary language.
+*.html linguist-generated=true
+*.html linguist-detectable=false
+data/output/** linguist-vendored=true
+data/output/** linguist-generated=true
