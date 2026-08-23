@@ -576,10 +576,17 @@ def build_constraints(
     }
 
     db_dir.mkdir(parents=True, exist_ok=True)
+    if sp.empty:
+        sp = pd.DataFrame(columns=["X", "Y", "Z", "formation"])
+    if ori.empty:
+        ori = pd.DataFrame(columns=["X", "Y", "Z", "azimuth", "dip", "polarity", "formation"])
     sp.to_csv(db_dir / "surface_points.csv", index=False)
     ori.to_csv(db_dir / "orientations.csv", index=False)
     with open(db_dir / "model_config.json", "w", encoding="utf-8") as f:
         json.dump(model_config, f, ensure_ascii=False, indent=1)
+
+    if len(sp) == 0:
+        raise ValueError("未能提取到有效的地层界面控制点。请检查单元审核表中的层序（order）设置是否正确。")
 
     summary = {
         "n_surface_points": len(sp),

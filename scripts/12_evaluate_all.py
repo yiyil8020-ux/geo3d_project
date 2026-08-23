@@ -41,8 +41,8 @@ def scenario_config(name: str) -> dict:
         "terrain": {"mode": "contours", "elevations": "from_truth"},
         "review": "from_truth",
         "constraints": {"use_section_picks": True},
-        "model": {"also_html": False, "also_mesh_exports": False},
-        "apps": None,
+        "model": {"also_html": True, "also_mesh_exports": False},
+        "apps": "auto",
         "evaluate": True,
     }
     if name == "flat_dem":

@@ -167,6 +167,12 @@ def ui_extract(img_path, world_w, world_h, z_min, z_max, res,
         ext = UI_CASE / "extract"
         units = pd.read_csv(ext / "units_auto.csv")
         units["series"] = "Strat_Series"
+        
+        # 自动默认赋层序（0, 1, 2...），使初次提取后直接建模即可成功运行
+        strata_mask = units["role"] == "strata"
+        if strata_mask.any():
+            units.loc[strata_mask, "order"] = list(range(int(strata_mask.sum())))
+
         units = units[["unit_id", "name", "role", "order", "series",
                        "dip", "azimuth", "color_r", "color_g", "color_b"]]
 
@@ -193,9 +199,8 @@ def ui_extract(img_path, world_w, world_h, z_min, z_max, res,
 
         msg = (f"✅ 提取完成：{len(units)} 个分区、{len(fdf)} 条断层候选、"
                f"{len(cdf)} 条等高线链。\n"
-               "请在下面三张表里完成人工审核（名称/层序 order 新→老=0,1,2…/"
-               "role 改 water·ignore/断层 confirmed 打 ✓/等高线填 elevation），"
-               "然后点『② 审核入库并建模』。")
+               "已自动为您预填了默认层序（order 0, 1, 2…）。您可以在下方微调地层名称/层序/断层，"
+               "或直接点击『② 审核入库并建模』一键生成 3D 模型！")
         return (p("preview_clusters.png"), p("preview_vectors.png"),
                 p("preview_contours.png"), units, fdf, cdf, msg)
     except Exception:
@@ -213,9 +218,22 @@ def ui_model(world_w, world_h, z_min, z_max, res, dark_max, merge_de,
     try:
         # ---- 审核表 → review 字典 ----
         units_edits = []
-        for _, r in pd.DataFrame(units_df).iterrows():
+        raw_units_df = pd.DataFrame(units_df)
+        if raw_units_df.empty:
+            return (*fail[:-1], "⚠ 审核表为空，请先运行提取。")
+
+        strata_count = 0
+        for _, r in raw_units_df.iterrows():
+            role_val = str(r["role"])
+            order_val = int(r["order"]) if not pd.isna(r["order"]) else -1
+            # 自动修复全为 -1 的情况
+            if role_val == "strata":
+                if order_val < 0:
+                    order_val = strata_count
+                strata_count += 1
+
             e = {"unit_id": int(r["unit_id"]), "name": str(r["name"]),
-                 "role": str(r["role"]), "order": int(r["order"]),
+                 "role": role_val, "order": order_val,
                  "series": str(r.get("series") or "Strat_Series")}
             for k in ("dip", "azimuth"):
                 v = r.get(k)
