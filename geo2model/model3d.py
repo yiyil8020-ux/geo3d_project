@@ -227,7 +227,7 @@ def build_model(
     # ---- 8. 3D 导出（HTML/OBJ/glTF/VTK）----
     html_path = None
     if params.also_html or params.also_mesh_exports:
-        html_path = _export_3d(geo_model, model_dir, lith, lith_meta, params)
+        html_path = _export_3d(geo_model, model_dir, lith, lith_meta, params, db_dir=Path(db_dir))
 
     print("[model3d] 完成")
     return {
@@ -254,8 +254,78 @@ def _ids_to_rgb(ids: np.ndarray, id_to_name: dict, name2color: dict) -> np.ndarr
     return out
 
 
-def _export_3d(geo_model, model_dir: Path, lith, lith_meta, params: ModelParams):
+def _export_3d_in_subprocess(db_dir: Path, model_dir: Path, params: ModelParams) -> Path | None:
+    """在独立主进程中执行 3D HTML 导出，彻底解决 aiohttp/trame 在 Gradio 子线程注册信号的限制。"""
+    import subprocess
+    import sys
+    html_path = model_dir / "model_3d.html"
+    code = f"""
+import gempy as gp
+import gempy_viewer as gpv
+import pyvista as pv
+from pathlib import Path
+import json
+
+db_dir = Path({repr(str(db_dir))})
+model_dir = Path({repr(str(model_dir))})
+with open(db_dir / 'model_config.json') as f:
+    cfg = json.load(f)
+
+geo_model = gp.create_geomodel(
+    project_name='geo2model',
+    extent=cfg['extent'],
+    resolution=cfg['resolution'],
+    importer_helper=gp.data.ImporterHelper(
+        path_to_surface_points=str(db_dir / 'surface_points.csv'),
+        path_to_orientations=str(db_dir / 'orientations.csv'),
+        coord_x_name='X', coord_y_name='Y', coord_z_name='Z', surface_name='formation',
+    ),
+)
+mapping = {{k: tuple(v) if isinstance(v, list) else v for k, v in cfg['series'].items()}}
+mapping = {{k: (v[0] if isinstance(v, tuple) and len(v) == 1 else v) for k, v in mapping.items()}}
+gp.map_stack_to_surfaces(gempy_model=geo_model, mapping_object=mapping)
+
+sol = gp.compute_model(geo_model)
+pv.global_theme.allow_empty_mesh = True
+try:
+    gempy_vista = gpv.plot_3d(
+        geo_model, show_data=True, show_lith=True, show_surfaces=True,
+        show_topography=True, image=False, show=False,
+        plotter_type='basic', kwargs_plotter={{'off_screen': True}},
+    )
+except Exception:
+    gempy_vista = gpv.plot_3d(
+        geo_model, show_data=True, show_lith=True, show_surfaces=True,
+        image=False, show=False, plotter_type='basic',
+        kwargs_plotter={{'off_screen': True}},
+    )
+plotter = getattr(gempy_vista, 'p', None) or getattr(gempy_vista, 'plotter', None)
+if plotter is not None:
+    plotter.export_html(str(model_dir / 'model_3d.html'))
+    try:
+        plotter.screenshot(str(model_dir / 'model_3d.png'))
+    except Exception:
+        pass
+"""
+    try:
+        res = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
+        if html_path.is_file():
+            print(f"  [主进程导出] 已保存可交互 3D: {html_path}")
+            return html_path
+    except Exception as exc:
+        print(f"  [主进程导出] 警告: {exc}")
+    return None
+
+
+def _export_3d(geo_model, model_dir: Path, lith, lith_meta, params: ModelParams, db_dir: Path | None = None):
     """PyVista 三维场景：HTML + 截图 + OBJ/glTF/VTK。失败不阻断主流程。"""
+    import threading
+    in_subthread = threading.current_thread() != threading.main_thread()
+    if in_subthread and db_dir is not None:
+        sub_res = _export_3d_in_subprocess(db_dir, model_dir, params)
+        if sub_res is not None:
+            return sub_res
+
     try:
         import gempy_viewer as gpv
         import pyvista as pv
@@ -283,10 +353,14 @@ def _export_3d(geo_model, model_dir: Path, lith, lith_meta, params: ModelParams)
             )
     except Exception as exc:
         print(f"  警告: 3D 场景构建失败（{type(exc).__name__}: {exc}），跳过 3D 导出")
+        if db_dir is not None:
+            return _export_3d_in_subprocess(db_dir, model_dir, params)
         return None
     plotter = getattr(gempy_vista, "p", None) or getattr(gempy_vista, "plotter", None)
     if plotter is None:
         print("  警告: 未取得 PyVista Plotter，跳过 3D 导出")
+        if db_dir is not None:
+            return _export_3d_in_subprocess(db_dir, model_dir, params)
         return None
 
     if params.also_html:
@@ -294,8 +368,11 @@ def _export_3d(geo_model, model_dir: Path, lith, lith_meta, params: ModelParams)
             plotter.export_html(str(html_path))
             print(f"  已保存可交互 3D: {html_path}")
         except Exception as exc:
-            print(f"  警告: export_html 失败 ({exc})")
-            html_path = None
+            print(f"  警告: export_html 失败 ({exc})，尝试子进程导出...")
+            if db_dir is not None:
+                html_path = _export_3d_in_subprocess(db_dir, model_dir, params)
+            else:
+                html_path = None
         try:
             plotter.screenshot(str(model_dir / "model_3d.png"))
         except Exception:

@@ -7,7 +7,7 @@
   "voxel_3d": 0.8569373475118538,
   "n_contacts": 31,
   "n_fault_candidates": 1,
-  "total_s": 86.31,
+  "total_s": 80.48,
   "status": "ok"
  },
  "gentle_nofault": {
@@ -18,7 +18,7 @@
   "voxel_3d": 0.9413332728365794,
   "n_contacts": 10,
   "n_fault_candidates": 0,
-  "total_s": 69.62,
+  "total_s": 68.96,
   "status": "ok"
  },
  "steep_narrow": {
@@ -29,7 +29,7 @@
   "voxel_3d": 0.578464654368865,
   "n_contacts": 39,
   "n_fault_candidates": 2,
-  "total_s": 76.1,
+  "total_s": 77.95,
   "status": "ok"
  },
  "similar_colors": {
@@ -40,7 +40,7 @@
   "voxel_3d": 0.857132992680569,
   "n_contacts": 29,
   "n_fault_candidates": 1,
-  "total_s": 69.14,
+  "total_s": 76.59,
   "status": "ok"
  },
  "high_relief": {
@@ -51,7 +51,7 @@
   "voxel_3d": 0.8689937785532267,
   "n_contacts": 36,
   "n_fault_candidates": 1,
-  "total_s": 81.57,
+  "total_s": 86.79,
   "status": "ok"
  },
  "flat_dem": {
@@ -62,7 +62,7 @@
   "voxel_3d": 0.8356,
   "n_contacts": 10,
   "n_fault_candidates": 1,
-  "total_s": 49.05,
+  "total_s": 51.87,
   "status": "ok"
  }
 }
