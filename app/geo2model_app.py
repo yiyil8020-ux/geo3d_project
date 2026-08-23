@@ -459,7 +459,7 @@ with gr.Blocks(title="geo2model · 平面地质图智能化三维构建") as dem
             sl_img = gr.Image(label="平切图", interactive=False)
         sl_btn.click(q_slice, [q_case, sl_z], [sl_img, sl_err])
 
-    gr.Markdown("---\n技术报告：`校创/技术报告/` · 手册：`docs/使用说明_geo2model.md` · "
+    gr.Markdown("---\n技术报告：`技术报告/` · 手册：`docs/使用说明_geo2model.md` · "
                 "命令行与界面产物完全一致")
 
 

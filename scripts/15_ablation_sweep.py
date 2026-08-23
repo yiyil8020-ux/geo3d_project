@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """消融辅助：对指定案例 db 用指定 kriging range 重算模型并输出体素一致率。"""
 import sys, json
-sys.path.insert(0, "/Users/yiyi/lzu/校创/geo3d_project")
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import numpy as np
 import gempy as gp
 from geo2model.mapgen import Scenario, truth_voxel_units
