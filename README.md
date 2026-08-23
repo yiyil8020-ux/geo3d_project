@@ -10,13 +10,24 @@ From planar geological maps toward open, reproducible **3D geological models** (
 
 ## Status (2026-07)
 
+**★ 2026-07-26 起，项目主体为 `geo2model/` 端到端原型**（地质图 → 矢量化 → 数据库 →
+GemPy 三维模型 → 虚拟钻孔/剖面/平切应用 → 定量评估），覆盖申报书全部功能点。
+文档：`docs/使用说明_geo2model.md`；技术报告见 `校创/技术报告/`。
+
 | Module | Status | Notes |
 |--------|--------|--------|
-| Map color clustering (KMeans / MeanShift) | Prototype | Gradio UI; limited on noisy / B&W maps |
+| **geo2model 端到端流水线** | **Done** | `scripts/10-13_*.py` + `configs/*.json` |
+| ├ 合成地质图基准（含像素真值） | Done | `geo2model/mapgen.py`，6 内置场景 |
+| ├ 分区分割（LAB 聚类+预处理） | Done | 清洁图像素准确率 99.7% |
+| ├ 界线/断层/等高线矢量化 | Done | `vectorize.py` / `terrain.py`（虚线+点线） |
+| ├ 数据库构建+人机交互审核 | Done | `geodatabase.py` / `constraints.py`（不整合系列） |
+| ├ GemPy 建模+多格式导出 | Done | `model3d.py`（HTML/VTK/OBJ/glTF） |
+| ├ 虚拟钻孔/任意剖面/平切图 | Done | `apps.py` |
+| ├ 剖面深部约束配准 | Done | `sectionreg.py`（体素一致率 55%→86%，剔基底 22%→76%） |
+| └ 鲁棒性测试（7 退化×4 档） | Done | `scripts/13_robustness.py` |
+| Map color clustering (KMeans / MeanShift) | Legacy | 旧 Gradio 原型，`scripts/geomap_demo/` |
 | Synthetic GemPy inputs (folds + fault) | Done | `scripts/01_make_synthetic_data.py` |
 | GemPy 3D modeling + topography | Done | `scripts/02_gempy_model.py` |
-| Interactive 3D (browser) | Done | `data/output/synthetic/model_3d.html` |
-| Real map → GemPy CSV | In progress | Legend-driven / line-vector paths planned |
 
 **Modeling is built with GemPy.** PyVista is used for visualization and interactive HTML export only.
 

@@ -24,3 +24,8 @@ data/*.h5
 
 # Keep synthetic CSV + demo figures; ignore other heavy dumps if added later
 scripts/geomap_demo/others/
+
+# Pipeline output runs (regenerated via scripts/10-15)
+data/output/geo2model/synth_*
+data/output/geo2model/real_map*
+data/output/geo2model/ui_session/

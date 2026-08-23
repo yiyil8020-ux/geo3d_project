@@ -2,7 +2,30 @@
 
 > 本文件供 AI 编程助手（如 Claude、Gemini 等）快速了解项目全貌。
 > 人类开发者同样可以阅读本文件来快速上手。
-> **最后更新：2026-07-16**
+> **最后更新：2026-07-26**
+
+---
+
+## ★ 2026-07-26 重大更新：geo2model 端到端原型
+
+项目主体已从"分离的聚类原型 + 合成建模脚本"升级为统一的
+**geo2model 包**（`geo2model/`），实现申报书全部功能闭环：
+
+```
+地质图 PNG → segment(分区) → vectorize(界线/断层) → terrain(等高线→DEM)
+          → geodatabase(人机审核) → constraints(层位点/产状/断层约束)
+          → model3d(GemPy+导出) → apps(虚拟钻孔/任意剖面/平切图)
+          → metrics(定量评估, 合成真值 mapgen + 退化 degrade)
+```
+
+- 统一环境：`.venv-gempy`（见 `requirements-geo2model.txt`），旧 geomap_demo/.venv 已废弃
+- 数据契约：`geo2model/CONTRACTS.md`（改接口先改它）
+- 运行入口：`scripts/10~13_*.py` + `configs/*.json`；手册 `docs/使用说明_geo2model.md`
+- 关键实测：合成基准分区准确率 99.5%+（6 场景）、三维体素一致率 base 场景
+  micro 85.7%（macro 79.4%、剔基底 76.2%；剖面深部约束是决定因素
+  55%→86%）；真实教学图幅 2 例全流程演示
+- 注意事项：cv2 5.0 的 filter2D 需 float32 核；pandas 3.0 严格 dtype（字符串列须 object）；
+  GemPy 每个 series 至少需 1 条产状；lith id = 结构框架元素顺序 1..n，基底=n+1
 
 ---
 
