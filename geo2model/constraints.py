@@ -262,7 +262,7 @@ def build_constraints(
         sp = pd.concat([sp, extra], ignore_index=True)
         print(f"[constraints] 已合入深部层位点 {len(extra)} 个")
 
-    # 厚度先验通道（申报书预留的人工数据接口之一）：
+    # 厚度先验通道：
     # 底界从不出露的隐伏单元（无钻孔/剖面时）可由用户给出估计厚度，
     # 用其上覆相邻单元的底界采样点整体下移生成虚拟底界点。
     # 例：P1 底界隐伏，用户估计 P1 厚 400 m → P1 底界点 = P2 底界点 z-400。

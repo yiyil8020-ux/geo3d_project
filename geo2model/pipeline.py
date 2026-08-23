@@ -3,7 +3,7 @@
 pipeline.py — 端到端流程编排（地质图 → 三维模型 → 应用 → 评估）
 =================================================================
 
-按申报书四阶段串联各模块，每个 case 由一个 JSON 配置驱动：
+按四阶段模块化串联各模块，每个 case 由一个 JSON 配置驱动：
 
 {
   "case_dir": "data/output/geo2model/synth_base",
@@ -193,7 +193,7 @@ def run_case(cfg: dict, interactive: bool = False) -> dict:
             report["n_deep_picks"] = len(deep_points)
 
     # 通用深部点文件（真实图幅：人工读剖面/钻孔录入的世界坐标点，
-    # 列 X,Y,Z,formation）——申报书预留的钻孔/物探数据输入窗口
+    # 列 X,Y,Z,formation）——外部钻孔/物探数据输入通道
     if cons_cfg.get("deep_points_files"):
         import pandas as pd
         dfs = [] if deep_points is None else [deep_points]
@@ -322,7 +322,7 @@ def evaluate_case(case_dir: str | Path, cfg: dict | None = None) -> dict:
     with open(case_dir / "truth" / "truth_meta.json", encoding="utf-8") as f:
         tmeta = json.load(f)
 
-    # ---- 1. 分区识别精度（申报书核心指标） ----
+    # ---- 1. 分区识别精度 ----
     labels = np.load(extract_dir / "labels.npy")
     labels_gt = np.load(case_dir / "truth" / "labels_gt.npy")
     seg_m = metrics_mod.segmentation_metrics(labels, labels_gt, tol_px=3)

@@ -15,7 +15,7 @@ python3 -m venv .venv-gempy                       # 已存在可跳过
 
 以下命令均在 `geo3d_project/` 目录下执行，`PY=.venv-gempy/bin/python`。
 
-## 1.5 图形界面（推荐新手）
+## 1.5 Web 图形界面 (GUI)
 
 双击项目根目录的 **`启动界面.command`**（或运行
 `.venv-gempy/bin/python app/geo2model_app.py`），浏览器会自动打开
